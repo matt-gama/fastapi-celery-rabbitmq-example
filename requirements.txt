@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+celery
+pika
+requests
+python-dotenv

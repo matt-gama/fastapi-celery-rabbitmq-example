@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # Porta do AMQP
+      - "15672:15672"  # Portal de management do RabbitMQ (opcional)
+
+  api:
+    build: .
+    container_name: microservice_a
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+    environment:
+      - CELERY_BROKER_URL=amqps://vbrkehdg:vdDNNENdKKBu_1vugYDQI53NimXYXiSG@gull.rmq.cloudamqp.com/vbrkehdg
+
+  worker:
+    build: .
+    container_name: worker_celery
+    command: ["celery", "-A", "app.celery_app:celery", "worker", "--loglevel=INFO"]
+    depends_on:
+      - rabbitmq
+    environment:
+      - CELERY_BROKER_URL=amqps://vbrkehdg:vdDNNENdKKBu_1vugYDQI53NimXYXiSG@gull.rmq.cloudamqp.com/vbrkehdg
